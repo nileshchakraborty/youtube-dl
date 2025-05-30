@@ -13,10 +13,12 @@ import re
 YOUTUBE_STREAM_AUDIO = '140' # modify the value to download a different stream
 
 # Set the download directory
+# Defaults to ~/Downloads/YouTube/<Video Uploader>
 DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Downloads", "YouTube")
 # Create the download directory if it doesn't exist
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
+
 # Function to download videos from a YouTube playlist
 def downloader():
 
@@ -56,8 +58,23 @@ def download_video(video_url):
         }]
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-    print('Video downloaded successfully!')
+        info = ydl.extract_info(video_url)
+        video_title = info.get('title', 'video')
+        video_uploader = info.get('uploader', 'Unknown')
+        downloaded_file = ydl.prepare_filename(info)
+
+    # Create the download directory if it doesn't exist
+    video_uploader = re.sub(r'[\\/*?:"<>|]', '', video_uploader)  # Remove invalid characters
+    download_path = os.path.join(DOWNLOAD_DIR, video_uploader)
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+
+    new_path = os.path.join(download_path, downloaded_file)
+    os.rename(downloaded_file, new_path)  # Move the downloaded file to the new path
+
+
+    print(f'Video "{video_title}" downloaded successfully!')
+    print(f'Video saved in: {new_path}')
 
 # Function to download audio from YouTube
 # install ffmpeg (https://ffmpeg.org/download.html)
