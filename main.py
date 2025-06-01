@@ -108,7 +108,9 @@ def extract_audio(file_path):
     audio = video.audio
     
     # Save the extracted audio to a new file
-    audio.write_audiofile('output.mp3')
+    audio_file_path = os.path.splitext(file_path)[0] + '.mp3'
+    audio.write_audiofile(audio_file_path)
+    print(f'Audio extracted and saved to: {audio_file_path}')
 
 # Function to move files to folders based on their names
 def move_files_to_folders(video_file_names_list):
@@ -164,7 +166,9 @@ def menu():
     print("1. Download video from YouTube")
     print("2. Download audio from YouTube")
     print("3. Download videos from YouTube playlist")
-    print("4. Exit")
+    print("4. Move downloaded videos to Downloads directory")
+    print("5. Extract audio from downloaded video")
+    print("6. Exit")
     choice = input("Enter your choice: ")
     if choice == '1':
         download_video()
@@ -172,9 +176,25 @@ def menu():
         download_audio()
     elif choice == '3':
         downloader()
-    
     elif choice == '4':
-        print("Exiting...")
+        video_file_names_list = []
+        for root, dirs, files in os.walk(DOWNLOAD_DIR):
+            for file in files:
+                if file.endswith(('.mp4', '.mkv', '.avi', '.mov', '.flv')):
+                    video_file_names_list.append(os.path.basename(file))
+        if not video_file_names_list:
+            print("No video files found to move.")
+            return
+        print(f'Moving {len(video_file_names_list)} video files to folders...')
+        move_files_to_folders(video_file_names_list)
+    elif choice == '5':
+        video_file_path = input("Enter the path of the downloaded video file: ")
+        if os.path.exists(video_file_path):
+            extract_audio(video_file_path)
+        else:
+            print("File does not exist. Please check the path and try again.")
+    elif choice == '6':
+        print("Exiting the program. Goodbye!")
         exit()
     else:
         print("Invalid choice! Please try again.")
