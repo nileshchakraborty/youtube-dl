@@ -98,6 +98,18 @@ def download_video(video_url):
     else:
         print('Video not moved.')
 
+import moviepy.editor as mp
+
+def extract_audio(file_path):
+    # Load video file using MoviePy
+    video = mp.VideoFileClip(file_path)
+    
+    # Extract audio from the video
+    audio = video.audio
+    
+    # Save the extracted audio to a new file
+    audio.write_audiofile('output.mp3')
+
 # Function to move files to folders based on their names
 def move_files_to_folders(video_file_names_list):
     """Moves each video file to a folder with the same name."""
@@ -182,5 +194,3 @@ if __name__ == '__main__':
 # 2. download_video(): This function downloads a single video from YouTube.
 # 3. download_audio(): This function downloads audio from a YouTube video.
 # 4. menu(): This function displays the menu and allows the user to choose an option.
-
-
