@@ -76,6 +76,57 @@ def download_video(video_url):
     print(f'Video "{video_title}" downloaded successfully!')
     print(f'Video saved in: {new_path}')
 
+    # After downloading the videos from playslist, ask if user wants to move the downloaded videos to the download directory
+    move_to_downloads = input("Do you want to move the downloaded video to the Downloads directory? (y/n): ")
+    if move_to_downloads.lower() == 'y':
+        # List all video files in the download new_path
+        
+        video_file_names_list = []
+        for root, dirs, files in os.walk(download_path):
+            for file in files:
+                if file.endswith(('.mp4', '.mkv', '.avi', '.mov', '.flv')):
+                    video_file_names_list.append(os.path.basename(file))
+        # Move the files to folders based on their names
+        if not video_file_names_list:
+            print("No video files found to move.")
+            return
+        print(f'Moving {len(video_file_names_list)} video files to folders...')
+        # Move the files to folders based on their names    
+        move_files_to_folders(video_file_names_list)
+        print(f'Video moved to: {download_path}')
+
+    else:
+        print('Video not moved.')
+
+# Function to move files to folders based on their names
+def move_files_to_folders(video_file_names_list):
+    """Moves each video file to a folder with the same name."""
+    folder_path = DOWNLOAD_DIR
+    common_part = ''
+    for file in video_file_names_list:
+        # Get the file name without the extension
+        file_name, _ = os.path.splitext(file)
+        
+        # Extract the common part of the file names and create a directory name
+        common_part = os.path.commonprefix([common_part, file_name])
+        folder_path = os.path.join(DOWNLOAD_DIR, common_part) if common_part else DOWNLOAD_DIR
+
+        
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    # Move the file to the folder
+    source_path = os.path.join(DOWNLOAD_DIR, file)
+    destination_path = os.path.join(folder_path, file)
+    if os.path.exists(source_path):
+        os.rename(source_path, destination_path)
+        print(f'Moved {file} to {folder_path}')
+    else:
+        print(f'File {file} does not exist in the download directory.')
+    # Reset the common part for the next file
+    common_part = ''
+    # Reset the folder path for the next file
+    folder_path = ''
+
 # Function to download audio from YouTube
 # install ffmpeg (https://ffmpeg.org/download.html)
 # and add it to the PATH
